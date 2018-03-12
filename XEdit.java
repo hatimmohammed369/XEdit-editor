@@ -14,18 +14,31 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -60,7 +73,12 @@ public class XEdit extends Application {
         saveSelection.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
         saveSelection.setOnAction((event) -> saveFile());
         
-        fileMenu.getItems().addAll(newSelection, openSelection, saveAsSelection, saveSelection);
+        MenuItem exitSelection = new MenuItem("Exit");
+        exitSelection.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
+        exitSelection.setOnAction((event) -> exit());
+        
+        fileMenu.getItems().addAll(newSelection, openSelection, saveAsSelection, saveSelection, new SeparatorMenuItem(),
+                exitSelection);
         
         menuBar.getMenus().addAll(fileMenu);
         root.setTop(menuBar);
@@ -70,6 +88,9 @@ public class XEdit extends Application {
         
         stage.setScene(new Scene(root, 600, 600));
         stage.show();
+        stage.setOnCloseRequest((event) -> {
+            exit();
+        });
     }
     
     Tab getSelectedTab(){
@@ -216,6 +237,102 @@ public class XEdit extends Application {
                 getCurrentXEditFile().setSaved(true);
                 getSelectedTab().setText(getCurrentFile().toPath().toString());
                 updateCurrentFile();
+            }
+        }
+    }
+    
+    void exit(){
+        if(files.isEmpty() || tabs.getTabs().isEmpty()){
+            System.exit(0);
+        }else{
+            if(getCurrentFile() == null){
+                Stage exitRequestStage = new Stage();
+                exitRequestStage.initModality(Modality.APPLICATION_MODAL);
+                exitRequestStage.initStyle(StageStyle.UTILITY);
+                
+                Pane exitRequestStageRootPane = new Pane();
+                exitRequestStageRootPane.setBackground( new Background( new BackgroundFill(Color.WHITE, null, null) ) );
+                
+                Label msg = new Label("Do you want to save untitled?");
+                msg.setFont(Font.font(15));
+                msg.setTextFill(Color.BLUE);
+                
+                Button yes = new Button("Yes");
+                yes.setFont(Font.font(15));
+                yes.setOnAction((Event) -> {
+                    saveFile();
+                    System.exit(0);
+                });
+                yes.setPrefSize(70, 30);
+                
+                Button no = new Button("No");
+                no.setFont(Font.font(15));
+                no.setOnAction((Event) -> System.exit(0));
+                no.setPrefSize(70, 30);
+                
+                Button cancel = new Button("Cancel");
+                cancel.setFont(Font.font(15));
+                cancel.setOnAction((Event) -> exitRequestStage.close());
+                cancel.setPrefSize(70, 30);
+                
+                Rectangle rect = new Rectangle(300, 50);
+                rect.setFill(Color.rgb(220, 220, 220));
+                
+                exitRequestStageRootPane.getChildren().addAll(msg, rect, yes, no, cancel);
+                msg.relocate(10, 10);
+                rect.relocate(0, 50);
+                yes.relocate(10, 55);
+                no.relocate(100, 55);
+                cancel.relocate(200, 55);
+                
+                exitRequestStage.setScene(new Scene(exitRequestStageRootPane, 300, 100));
+                exitRequestStage.show();
+            }else{
+                if(getCurrentXEditFile().isSaved()){
+                    System.exit(0);
+                }else{
+                    Stage exitRequestStage = new Stage();
+                    exitRequestStage.initModality(Modality.APPLICATION_MODAL);
+                    exitRequestStage.initStyle(StageStyle.UTILITY);
+                
+                    Pane exitRequestStageRootPane = new Pane();
+                    exitRequestStageRootPane.setBackground( new Background( new BackgroundFill(Color.WHITE, null, null) ) );
+                
+                    Label msg = new Label("Do you want to save untitled?");
+                    msg.setFont(Font.font(15));
+                    msg.setTextFill(Color.BLUE);
+                
+                    Button yes = new Button("Yes");
+                    yes.setFont(Font.font(15));
+                    yes.setOnAction((Event) -> {
+                        saveFile();
+                        System.exit(0);
+                    });
+                    yes.setPrefSize(70, 30);
+                    
+                    Button no = new Button("No");
+                    no.setFont(Font.font(15));
+                    no.setOnAction((Event) -> System.exit(0));
+                    no.setPrefSize(70, 30);
+                
+                    Button cancel = new Button("Cancel");
+                    cancel.setFont(Font.font(15));
+                    cancel.setOnAction((Event) -> exitRequestStage.close());
+                    cancel.setPrefSize(70, 30);
+                
+                    Rectangle rect = new Rectangle(300, 50);
+                    rect.setFill(Color.rgb(220, 220, 220));
+                
+                    exitRequestStageRootPane.getChildren().addAll(msg, rect, yes, no, cancel);
+                    msg.relocate(10, 10);
+                    rect.relocate(0, 50);
+                    yes.relocate(10, 55);
+                    no.relocate(100, 55);
+                    cancel.relocate(200, 55);
+                
+                    exitRequestStage.setScene(new Scene(exitRequestStageRootPane, 300, 100));
+                    exitRequestStage.show();
+                }
             }
         }
     }
