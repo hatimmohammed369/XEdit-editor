@@ -6,52 +6,60 @@
 package xedit;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  *
- * @author Acer
+ * @author Kaiser
  */
 public class XEditFile {
     private File wrappedFile;
-    private boolean isSaved, isOpened;
+    private boolean saved;
     
-    public XEditFile(File file, boolean isSaved, boolean isOpened){
+    public XEditFile(File file, boolean saved){
         wrappedFile = file;
-        this.isSaved = isSaved;
-        this.isOpened = isOpened;
+        this.saved = saved;
     }
     
-    public XEditFile(File file){
-        this(file, true, true);
+    public XEditFile(){
+        this(null, false);
     }
     
     @Override
     public boolean equals(Object obj){
-        XEditFile file = (XEditFile) obj;
-        return wrappedFile.equals(file.wrappedFile);
+        if(obj instanceof XEditFile){
+            XEditFile file = (XEditFile) obj;
+            return wrappedFile.equals(file.wrappedFile) && saved == file.saved;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 47 * hash + Objects.hashCode(this.wrappedFile);
+        hash = 47 * hash + (this.saved ? 1 : 0);
+        return hash;
+    }
+    
+    public void init(File newFile, boolean saved){
+        wrappedFile = newFile;
+        this.saved = saved;
     }
     
     public File getFile(){
         return wrappedFile;
     }
     
-    public void setFile(File newFile){
-        wrappedFile = newFile;
-    }
-    
     public boolean isSaved(){
-        return isSaved;
+        return saved;
     }
     
-    public void setSaved(boolean newValue){
-        isSaved = newValue;
+    public void setSaved(boolean value){
+        saved = value;
     }
     
     public boolean isOpened(){
-        return isOpened;
-    }
-    
-    public void setOpened(boolean newValue){
-        isOpened = newValue;
+        return wrappedFile != null;
     }
 }
